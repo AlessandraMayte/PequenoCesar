@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Pedidos</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page orders-view" data-page="pedidos" data-roles-allowed="CAJERO">
+    <aside th:replace="~{fragments/sidebar :: sidebar('pedidos')}"></aside>
+
+    <main class="dashboard-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section">
+            <div class="section-heading compact"><div><h1>Pedidos de Clientes</h1></div></div>
+
+            <div class="panel-card customer-order-card mt-4">
+                <div class="panel-header"><h2>Pedido de cliente</h2><span>Venta basada en recetas</span></div>
+                <form id="pedidoForm" class="vstack gap-3 mb-3">
+                    <select id="pedidoTipoAtencion" name="tipoAtencion" class="form-select" required>
+                        <option value="LOCAL">Local</option>
+                        <option value="DELIVERY">Delivery</option>
+                    </select>
+                    <div class="recipe-form-preview order-customer-search">
+                        <input id="pedidoClienteDni" type="search" class="form-control" placeholder="Buscar cliente por DNI" inputmode="numeric" minlength="8" maxlength="8" pattern="^\d{8}$" autocomplete="off">
+                        <button id="buscarPedidoCliente" class="btn btn-dark" type="button">Buscar</button>
+                        <button id="openPedidoClienteModal" class="btn btn-outline-dark" type="button">Nuevo cliente</button>
+                    </div>
+                    <input id="pedidoClienteId" name="idCliente" type="hidden">
+                    <div id="pedidoClientePreview" class="border rounded p-3 d-none"></div>
+                    <div class="recipe-form-preview order-recipe-picker">
+                        <select id="pedidoRecetaSelect" class="form-select"><option value="">Seleccionar receta</option></select>
+                        <select id="pedidoRecetaTamano" class="form-select">
+                            <option value="">Seleccionar tamano</option>
+                            <option value="PERSONAL">Personal</option>
+                            <option value="MEDIANA">Mediana</option>
+                            <option value="FAMILIAR">Familiar</option>
+                        </select>
+                        <input id="pedidoRecetaCantidad" type="number" min="1" step="1" class="form-control" placeholder="Cantidad">
+                        <input id="pedidoRecetaPrecio" type="text" class="form-control" placeholder="Precio" readonly>
+                        <button id="addPedidoReceta" class="btn btn-dark" type="button"><span class="btn-icon">+</span> Agregar</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table app-table align-middle">
+                            <thead><tr><th>Receta</th><th>Tamano</th><th>Cantidad</th><th>Precio</th><th>Subtotal</th><th></th></tr></thead>
+                            <tbody id="pedidoRecetasTable"></tbody>
+                        </table>
+                    </div>
+                    <div class="order-submit-row">
+                        <label class="order-total-box">
+                            <span>Total del pedido</span>
+                            <input name="total" type="number" min="0" step="0.01" class="form-control" placeholder="0.00" readonly required>
+                        </label>
+                        <button class="btn btn-dark" type="submit">Realizar pedido</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="pedidoClienteModal" tabindex="-1" aria-labelledby="pedidoClienteModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="pedidoClienteModalTitle" class="modal-title fs-5">Registrar cliente</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <form id="pedidoClienteQuickForm">
+                    <div class="modal-body vstack gap-3">
+                        <input name="nombre" class="form-control" placeholder="Nombre" maxlength="80" required>
+                        <input name="apellido" class="form-control" placeholder="Apellido" maxlength="80" required>
+                        <div class="input-group">
+                            <input name="dni" class="form-control" placeholder="DNI" inputmode="numeric" minlength="8" maxlength="8" pattern="^\d{8}$" title="El DNI debe tener exactamente 8 digitos" required>
+                            <button class="btn btn-outline-dark" type="button" data-reniec-lookup>Buscar DNI</button>
+                        </div>
+                        <input name="direccion" class="form-control" placeholder="Direccion" maxlength="180">
+                        <input name="celular" class="form-control" placeholder="Celular" inputmode="numeric" minlength="9" maxlength="9" pattern="^\d{9}$" title="El celular debe tener exactamente 9 digitos">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-dark">Guardar cliente</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Ordenes de Compra</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page orders-view" data-page="ordenes" data-manager-only="true">
+    <aside th:replace="~{fragments/sidebar :: sidebar('ordenes')}"></aside>
+
+    <main class="dashboard-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section">
+            <div class="section-heading compact"><div><p class="eyebrow text-orange">Modulo</p><h1>Ordenes de Compra</h1></div></div>
+
+            <div class="orders-grid mt-4">
+                <article class="panel-card supplier-order-card order-create-card">
+                    <div class="panel-header"><h2>Orden de compra</h2><span>Compra y reposicion de insumos</span></div>
+                    <form id="ordenForm" class="vstack gap-2">
+                        <input type="hidden" name="idOrden">
+                        <select id="ordenProveedorSelect" name="idProveedor" class="form-select" required><option value="">Seleccionar proveedor</option></select>
+                        <div class="recipe-form-preview">
+                            <select id="ordenInsumoSelect" class="form-select"><option value="">Seleccionar insumo</option></select>
+                            <input id="ordenCantidad" type="number" min="0.01" step="0.01" class="form-control" placeholder="Cantidad">
+                            <button id="addOrdenInsumo" class="btn btn-dark" type="button"><span class="btn-icon">+</span> Agregar</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table app-table align-middle">
+                                <thead><tr><th>Insumo</th><th>Cantidad</th><th>Unidad</th><th></th></tr></thead>
+                                <tbody id="ordenInsumosTable"></tbody>
+                            </table>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="ordenSubmitButton" class="btn btn-brand w-100" type="submit">Crear orden de compra</button>
+                            <button id="cancelOrdenEdit" class="btn btn-outline-dark w-100 d-none" type="button">Cancelar edicion</button>
+                        </div>
+                    </form>
+                </article>
+                <article class="panel-card low-stock-card">
+                    <div class="panel-header"><h2>Productos con bajo stock</h2><span>Reposicion sugerida</span></div>
+                    <div id="stockBajoList" class="low-stock-card"></div>
+                </article>
+            </div>
+
+            <div class="panel-card report-table-card mt-4">
+                <div class="panel-header"><h2>Ordenes de compra registradas</h2><span id="ordenesResultCount">0 ordenes</span></div>
+                <div class="table-search table-tools mb-3">
+                    <input id="ordenSearch" type="search" class="form-control" placeholder="Buscar proveedor, estado o detalle..." autocomplete="off">
+                    <select id="ordenPageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                    </select>
+                </div>
+                <div class="table-responsive"><table class="table app-table align-middle"><thead><tr><th><button class="table-sort-button" type="button" data-sort-orden="nombreProveedor">Proveedor</button></th><th><button class="table-sort-button" type="button" data-sort-orden="estado">Estado</button></th><th>Detalle</th><th class="text-center">Acciones</th></tr></thead><tbody id="ordenesTable"></tbody></table></div>
+                <div id="ordenPagination" class="table-pagination"></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="ordenDetalleModal" tabindex="-1" aria-labelledby="ordenDetalleModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="ordenDetalleModalTitle" class="modal-title fs-5">Detalle de orden de compra</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div id="ordenDetalleModalBody" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="ordenPdfModal" tabindex="-1" aria-labelledby="ordenPdfModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="ordenPdfModalTitle" class="modal-title fs-5">Orden de compra PDF</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div id="ordenPdfModalBody" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button id="downloadOrdenPdf" type="button" class="btn btn-dark">Descargar PDF</button>
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

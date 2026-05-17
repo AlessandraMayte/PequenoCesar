@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Reporte de Pedidos</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page reports-view" data-page="reportes-pedidos" data-manager-only="true">
+    <aside th:replace="~{fragments/sidebar :: sidebar('reportes-pedidos')}"></aside>
+
+    <main class="dashboard-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section reports-page-grid">
+            <div class="section-heading compact">
+                <div><p class="eyebrow text-orange">Modulo</p><h1>Reporte de Pedidos</h1></div>
+            </div>
+
+            <form id="reportePedidosFilterForm" class="panel-card report-filter-card report-orders-filter-card">
+                <div>
+                    <label class="form-label" for="reportePedidosInicio">Desde</label>
+                    <input id="reportePedidosInicio" name="inicio" type="date" class="form-control">
+                </div>
+                <div>
+                    <label class="form-label" for="reportePedidosFin">Hasta</label>
+                    <input id="reportePedidosFin" name="fin" type="date" class="form-control">
+                </div>
+                <div>
+                    <label class="form-label" for="reportePedidosVendedor">Vendedor</label>
+                    <select id="reportePedidosVendedor" name="idEmpleado" class="form-select"><option value="">Todos</option></select>
+                </div>
+                <button class="btn btn-dark" type="submit">Filtrar pedidos</button>
+            </form>
+
+            <div class="panel-card report-table-card mt-4">
+                <div class="panel-header">
+                    <h2>Pedidos encontrados</h2>
+                    <span id="reportePedidosCount">0 pedidos</span>
+                </div>
+                <div class="table-search table-tools mb-3">
+                    <input id="reportePedidosSearch" type="search" class="form-control" placeholder="Buscar cliente, vendedor o estado..." autocomplete="off">
+                    <select id="reportePedidosPageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                    </select>
+                    <button id="reportePedidosPdf" class="btn btn-dark" type="button">Descargar PDF</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table app-table align-middle">
+                        <thead><tr><th><button class="table-sort-button" type="button" data-sort-reporte-pedido="fechaHora">Fecha</button></th><th><button class="table-sort-button" type="button" data-sort-reporte-pedido="nombreCliente">Cliente</button></th><th><button class="table-sort-button" type="button" data-sort-reporte-pedido="nombreVendedor">Vendedor</button></th><th><button class="table-sort-button" type="button" data-sort-reporte-pedido="estado">Estado</button></th><th><button class="table-sort-button" type="button" data-sort-reporte-pedido="total">Total</button></th><th class="text-center">Detalle</th></tr></thead>
+                        <tbody id="reportePedidosTable"></tbody>
+                    </table>
+                </div>
+                <div id="reportePedidosPagination" class="table-pagination"></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="reportePedidoDetalleModal" tabindex="-1" aria-labelledby="reportePedidoDetalleTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="reportePedidoDetalleTitle" class="modal-title fs-5">Detalle del pedido</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div id="reportePedidoDetalleBody" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

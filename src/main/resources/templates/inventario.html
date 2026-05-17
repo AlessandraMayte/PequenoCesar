@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Inventario</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page inventory-view" data-page="inventario" data-roles-allowed="GERENTE,COCINA">
+    <aside th:replace="~{fragments/sidebar :: sidebar('inventario')}"></aside>
+
+    <main class="dashboard-main employees-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section employees-layout">
+            <div class="section-heading compact">
+                <div>
+                    <h1>Gestion de Inventario</h1>
+                </div>
+                <button id="inventarioSubmitTop" class="btn btn-brand" type="submit" form="inventarioForm"><span class="btn-icon">+</span> Registrar insumo</button>
+            </div>
+            <div class="summary-row">
+                <article><span>Total de insumos</span><strong id="inventarioTotal">0</strong></article>
+                <article><span>Stock critico</span><strong id="inventarioCritico">0</strong></article>
+                <article><span>Stock bajo</span><strong id="inventarioBajo">0</strong></article>
+                <article><span>Por vencer</span><strong id="inventarioPorVencer">0</strong></article>
+            </div>
+            <div class="employees-grid">
+                <article class="panel-card employee-form-card">
+                    <div class="panel-header">
+                        <h2 id="inventarioFormTitle">Nuevo insumo</h2>
+                        <span>Control de stock</span>
+                    </div>
+                    <form id="inventarioForm" class="vstack gap-3">
+                        <input type="hidden" name="idInsumo">
+                        <input name="nombreInsumo" class="form-control" placeholder="Nombre de insumo" required>
+                        <input name="stockActual" type="number" min="0" step="0.01" class="form-control" placeholder="Stock actual" required>
+                        <input name="unidad" class="form-control" placeholder="Unidad (kg, lt, unidad)" maxlength="20" required>
+                        <input name="stockMinimo" type="number" min="0.01" step="0.01" class="form-control" placeholder="Stock minimo" required>
+                        <input name="fechaCaducidad" type="date" class="form-control" required>
+                        <div class="d-grid gap-2">
+                            <button id="inventarioSubmitButton" class="btn btn-dark w-100" type="submit"><span class="btn-icon">✓</span> Guardar insumo</button>
+                            <button id="cancelInventarioEdit" class="btn btn-outline-dark w-100 d-none" type="button"><span class="btn-icon">×</span> Cancelar edicion</button>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="panel-card employees-table-card inventory-panel">
+                    <div class="panel-header">
+                        <h2>Insumos registrados</h2>
+                        <span id="inventarioResultCount">0 registros</span>
+                    </div>
+                    <div class="table-search table-tools mb-3">
+                        <input id="inventarioSearch" type="search" class="form-control" placeholder="Buscar insumo, unidad, fecha o estado..." autocomplete="off">
+                        <select id="inventarioPageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table app-table align-middle">
+                            <thead><tr><th>#</th><th><button class="table-sort-button" type="button" data-sort-inventario="nombreInsumo">Nombre</button></th><th><button class="table-sort-button" type="button" data-sort-inventario="stockActual">Stock</button></th><th><button class="table-sort-button" type="button" data-sort-inventario="unidad">Unidad</button></th><th><button class="table-sort-button" type="button" data-sort-inventario="stockMinimo">Minimo</button></th><th><button class="table-sort-button" type="button" data-sort-inventario="fechaCaducidad">Vencimiento</button></th><th><button class="table-sort-button" type="button" data-sort-inventario="nivel">Nivel</button></th><th><button class="table-sort-button" type="button" data-sort-inventario="estado">Estado</button></th><th class="text-center">Acciones</th></tr></thead>
+                            <tbody id="inventarioTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="inventarioPagination" class="table-pagination"></div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="inventarioStockModal" tabindex="-1" aria-labelledby="inventarioStockModalTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="inventarioStockModalTitle" class="modal-title fs-5">Agregar stock</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <form id="inventarioStockForm">
+                    <div class="modal-body vstack gap-3">
+                        <input type="hidden" name="idInsumo">
+                        <div id="inventarioStockSummary" class="stock-modal-summary"></div>
+                        <label class="recipe-size-field" for="inventarioStockCantidad">
+                            <span>Cantidad a agregar</span>
+                            <input id="inventarioStockCantidad" name="cantidad" type="number" min="0.01" step="0.01" class="form-control form-control-lg" placeholder="0.00" required>
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-dark">Agregar stock</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

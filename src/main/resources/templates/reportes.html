@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Reportes Generales</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page reports-view" data-page="reportes" data-manager-only="true">
+    <aside th:replace="~{fragments/sidebar :: sidebar('reportes')}"></aside>
+
+    <main class="dashboard-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section reports-page-grid">
+            <div class="section-heading compact">
+                <div><p class="eyebrow text-orange">Modulo</p><h1>Reportes Generales</h1></div>
+            </div>
+
+            <form id="reportesFilterForm" class="panel-card report-filter-card">
+                <div>
+                    <label class="form-label" for="reporteInicio">Desde</label>
+                    <input id="reporteInicio" name="inicio" type="date" class="form-control">
+                </div>
+                <div>
+                    <label class="form-label" for="reporteFin">Hasta</label>
+                    <input id="reporteFin" name="fin" type="date" class="form-control">
+                </div>
+                <button class="btn btn-dark" type="submit">Actualizar reporte</button>
+            </form>
+
+            <div class="kpi-grid report-kpi-grid">
+                <article class="kpi-card"><span>Total vendido</span><strong id="reporteTotalVendido">S/ 0.00</strong><small id="reportePeriodo">Periodo actual</small></article>
+                <article class="kpi-card"><span>Pedidos</span><strong id="reporteCantidadPedidos">0</strong><small>Pedidos registrados</small></article>
+                <article class="kpi-card"><span>Promedio por pedido</span><strong id="reportePromedioPedido">S/ 0.00</strong><small>Ticket promedio</small></article>
+            </div>
+
+            <div class="reports-grid report-dashboard-grid">
+                <article class="panel-card report-table-card">
+                    <div class="panel-header"><h2>Recetas mas vendidas</h2><span>Ranking por cantidad</span></div>
+                    <div class="table-search table-tools mb-3">
+                        <input id="reporteRecetasSearch" type="search" class="form-control" placeholder="Buscar receta o tamano..." autocomplete="off">
+                        <select id="reporteRecetasPageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table app-table align-middle">
+                            <thead><tr><th>#</th><th><button class="table-sort-button" type="button" data-sort-reporte-receta="nombreReceta">Receta</button></th><th><button class="table-sort-button" type="button" data-sort-reporte-receta="tamano">Tamano</button></th><th><button class="table-sort-button" type="button" data-sort-reporte-receta="cantidad">Cantidad</button></th><th><button class="table-sort-button" type="button" data-sort-reporte-receta="totalVendido">Total</button></th></tr></thead>
+                            <tbody id="reporteRecetasTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="reporteRecetasPagination" class="table-pagination"></div>
+                </article>
+                <article class="panel-card report-table-card">
+                    <div class="panel-header"><h2>Inventario critico</h2><span>Stock actual vs minimo</span></div>
+                    <div class="table-responsive">
+                        <table class="table app-table align-middle">
+                            <thead><tr><th>Insumo</th><th>Stock</th><th>Minimo</th><th>Estado</th></tr></thead>
+                            <tbody id="reporteInventarioTable"></tbody>
+                        </table>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

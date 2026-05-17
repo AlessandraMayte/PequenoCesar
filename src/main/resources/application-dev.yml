@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cesar_db
+    username: postgres
+    password: admin
+  jpa:
+    show-sql: true
+
+jwt:
+  secret: dev-secret-key-para-desarrollo-muy-larga-para-hs256
+  expiration-ms: 900000
+
+decolecta:
+  api-token: ${DECOLECTA_API_TOKEN:}

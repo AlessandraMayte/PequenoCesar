@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: false
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-ms: ${JWT_EXPIRATION_MS:900000}
+
+app:
+  default-admin:
+    enabled: ${DEFAULT_ADMIN_ENABLED:false}
+    user: ${DEFAULT_ADMIN_USER:}
+    password: ${DEFAULT_ADMIN_PASSWORD:}

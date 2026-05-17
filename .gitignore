@@ -31,3 +31,15 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Agent local metadata ###
+.agents/
+skills-lock.json
+
+### Local database backups ###
+backups/*
+
+### Local environment secrets ###
+.env
+.env.*
+!.env.example

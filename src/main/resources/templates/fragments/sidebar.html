@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar(activePage)" class="sidebar" data-active-role="PENDING">
+    <div class="sidebar-mobile-head">
+        <a class="sidebar-brand" th:href="@{/dashboard}">
+            <img th:src="@{/imagenes/logo.png}" alt="Little Caesars">
+            <span>Little Caesars</span>
+        </a>
+        <button class="sidebar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+
+    <div class="sidebar-menu-panel">
+        <div class="sidebar-user-card">
+            <span id="userName">Usuario</span>
+            <small id="userRole">Rol</small>
+        </div>
+
+        <nav class="sidebar-nav sidebar-nav-role" data-role-menu="GERENTE" aria-label="Navegacion gerente">
+            <span class="sidebar-section-title">Inicio</span>
+            <a th:href="@{/dashboard}" th:class="${activePage == 'dashboard'} ? 'active' : ''">Dashboard</a>
+            <div class="notification-center sidebar-notification-center" id="notificationCenter">
+                <button id="notificationBell" class="notification-bell" type="button" aria-label="Ver notificaciones" aria-expanded="false" aria-controls="notificationPanel">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M12 22a2.75 2.75 0 0 0 2.55-1.72h-5.1A2.75 2.75 0 0 0 12 22Zm7.1-5.38-1.6-2.15V10a5.52 5.52 0 0 0-4.25-5.36V3.7a1.25 1.25 0 0 0-2.5 0v.94A5.52 5.52 0 0 0 6.5 10v4.47l-1.6 2.15A1.48 1.48 0 0 0 6.08 19h11.84a1.48 1.48 0 0 0 1.18-2.38Z"/>
+                    </svg>
+                    <span>Notificaciones</span>
+                    <small id="alertNotificationsBadge" class="notification-badge d-none">0</small>
+                </button>
+                <div id="notificationPanel" class="notification-panel" role="region" aria-label="Notificaciones de stock">
+                    <div class="notification-panel-header">
+                        <strong>Notificaciones</strong>
+                        <span id="alertNotificationsCount">0 pendientes</span>
+                    </div>
+                    <div id="alertNotifications" class="notification-list" aria-live="polite"></div>
+                    <p id="alertNotificationsEmpty" class="notification-empty">No hay notificaciones pendientes.</p>
+                </div>
+            </div>
+
+            <span class="sidebar-section-title">Operacion</span>
+            <a th:href="@{/inventario}" th:class="${activePage == 'inventario'} ? 'active' : ''">Inventario</a>
+            <a th:href="@{/recetas}" th:class="${activePage == 'recetas'} ? 'active' : ''">Recetas</a>
+            <a th:href="@{/ordenes}" th:class="${activePage == 'ordenes'} ? 'active' : ''">Ordenes Compra</a>
+            <a th:href="@{/proveedores}" th:class="${activePage == 'proveedores'} ? 'active' : ''">Proveedores</a>
+
+            <span class="sidebar-section-title">Ventas</span>
+            <a th:href="@{/clientes}" th:class="${activePage == 'clientes'} ? 'active' : ''">Clientes</a>
+            <div th:class="${activePage == 'reportes' || activePage == 'reportes-pedidos'} ? 'sidebar-dropdown open' : 'sidebar-dropdown'">
+                <button class="sidebar-dropdown-toggle" type="button" aria-expanded="false">Reportes</button>
+                <div class="sidebar-dropdown-menu">
+                    <a th:href="@{/reportes}" th:class="${activePage == 'reportes'} ? 'active' : ''">Generales</a>
+                    <a th:href="@{/reportes-pedidos}" th:class="${activePage == 'reportes-pedidos'} ? 'active' : ''">Pedidos</a>
+                </div>
+            </div>
+
+            <span class="sidebar-section-title">Equipo</span>
+            <a th:href="@{/empleados}" th:class="${activePage == 'empleados'} ? 'active' : ''">Empleados</a>
+        </nav>
+
+        <nav class="sidebar-nav sidebar-nav-role" data-role-menu="CAJERO" aria-label="Navegacion cajero">
+            <span class="sidebar-section-title">Inicio</span>
+            <a th:href="@{/dashboard}" th:class="${activePage == 'dashboard'} ? 'active' : ''">Dashboard</a>
+
+            <span class="sidebar-section-title">Atencion</span>
+            <a th:href="@{/clientes}" th:class="${activePage == 'clientes'} ? 'active' : ''">Clientes</a>
+            <a th:href="@{/pedidos}" th:class="${activePage == 'pedidos'} ? 'active' : ''">Pedidos</a>
+            <a th:href="@{/mis-pedidos}" th:class="${activePage == 'mis-pedidos'} ? 'active' : ''">Mis pedidos</a>
+        </nav>
+
+        <nav class="sidebar-nav sidebar-nav-role" data-role-menu="COCINA" aria-label="Navegacion cocina">
+            <span class="sidebar-section-title">Inicio</span>
+            <a th:href="@{/dashboard}" th:class="${activePage == 'dashboard'} ? 'active' : ''">Dashboard</a>
+
+            <span class="sidebar-section-title">Cocina</span>
+            <a th:href="@{/cocina-pedidos}" th:class="${activePage == 'cocina-pedidos'} ? 'active' : ''">Pedidos cocina</a>
+            <a th:href="@{/inventario}" th:class="${activePage == 'inventario'} ? 'active' : ''">Inventario</a>
+            <a th:href="@{/recetas}" th:class="${activePage == 'recetas'} ? 'active' : ''">Recetas</a>
+        </nav>
+
+        <button id="logoutButton" class="sidebar-logout" type="button">Cerrar Sesion</button>
+    </div>
+</aside>
+</body>
+</html>

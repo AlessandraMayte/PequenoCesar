@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Empleados</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page employees-view" data-page="empleados" data-manager-only="true">
+    <aside th:replace="~{fragments/sidebar :: sidebar('empleados')}"></aside>
+
+    <main class="dashboard-main employees-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section employees-layout">
+            <div class="section-heading compact">
+                <div>
+                    <h1>Gestion de Empleados</h1>
+                </div>
+                <button id="empleadoSubmitTop" class="btn btn-brand" type="submit" form="empleadoForm"><span class="btn-icon">+</span> Registrar empleado</button>
+            </div>
+
+            <div class="employees-grid">
+                <article class="panel-card employee-form-card">
+                    <div class="panel-header">
+                        <h2 id="empleadoFormTitle">Nuevo empleado</h2>
+                        <span>Acceso al sistema</span>
+                    </div>
+                    <form id="empleadoForm" class="vstack gap-3">
+                        <input type="hidden" name="idEmpleado">
+                        <input name="nombres" class="form-control" placeholder="Nombres" minlength="2" maxlength="80" required>
+                        <input name="apellidos" class="form-control" placeholder="Apellidos" minlength="2" maxlength="80" required>
+                        <input name="user" class="form-control" placeholder="Username" minlength="3" maxlength="50" required>
+                        <select name="rol" class="form-select" required>
+                            <option value="">Seleccionar rol</option>
+                            <option value="GERENTE">Gerente</option>
+                            <option value="CAJERO">Cajero</option>
+                            <option value="COCINA">Cocina</option>
+                        </select>
+                        <select name="estado" class="form-select" required>
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                        <div class="password-field">
+                            <input id="empleadoPassword" name="contrasena" type="password" class="form-control" placeholder="Contrasena" minlength="6" pattern="^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$" title="Debe tener al menos una mayuscula, un numero y un caracter especial" required>
+                            <button id="toggleEmpleadoPassword" class="btn btn-outline-dark password-toggle" type="button" aria-label="Mostrar contrasena"></button>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="empleadoSubmitButton" class="btn btn-dark w-100" type="submit"><span class="btn-icon">✓</span> Guardar empleado</button>
+                            <button id="cancelEmpleadoEdit" class="btn btn-outline-dark w-100 d-none" type="button"><span class="btn-icon">×</span> Cancelar edicion</button>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="panel-card employees-table-card">
+                    <div class="panel-header">
+                        <h2>Empleados registrados</h2>
+                        <span id="empleadoResultCount">0 registros</span>
+                    </div>
+                    <div class="table-search table-tools mb-3">
+                        <input id="empleadoSearch" type="search" class="form-control" placeholder="Buscar empleado, rol o estado..." autocomplete="off">
+                        <select id="empleadoPageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table app-table align-middle">
+                            <thead><tr><th>#</th><th><button class="table-sort-button" type="button" data-sort-empleado="nombres">Nombres</button></th><th><button class="table-sort-button" type="button" data-sort-empleado="apellidos">Apellidos</button></th><th><button class="table-sort-button" type="button" data-sort-empleado="user">Usuario</button></th><th><button class="table-sort-button" type="button" data-sort-empleado="rol">Rol</button></th><th><button class="table-sort-button" type="button" data-sort-empleado="estado">Estado</button></th><th class="text-center">Acciones</th></tr></thead>
+                            <tbody id="empleadosTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="empleadoPagination" class="table-pagination"></div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Proveedores</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page employees-view" data-page="proveedores" data-manager-only="true">
+    <aside th:replace="~{fragments/sidebar :: sidebar('proveedores')}"></aside>
+
+    <main class="dashboard-main employees-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section employees-layout">
+            <div class="section-heading compact">
+                <div><h1>Gestion de Proveedores</h1></div>
+                <button id="proveedorSubmitTop" class="btn btn-brand" type="submit" form="proveedorForm"><span class="btn-icon">+</span> Registrar proveedor</button>
+            </div>
+
+            <div class="employees-grid">
+                <article class="panel-card employee-form-card">
+                    <div class="panel-header">
+                        <h2 id="proveedorFormTitle">Nuevo proveedor</h2>
+                        <span>Datos del proveedor</span>
+                    </div>
+                    <form id="proveedorForm" class="vstack gap-3">
+                        <input type="hidden" name="idProveedor">
+                        <input name="nombre" class="form-control" placeholder="Nombre del proveedor" maxlength="120" required>
+                        <input name="ruc" class="form-control" placeholder="RUC" inputmode="numeric" minlength="11" maxlength="11" pattern="^\d{11}$" title="El RUC debe tener exactamente 11 digitos" required>
+                        <input name="telefono" class="form-control" placeholder="Telefono" inputmode="numeric" minlength="9" maxlength="9" pattern="^\d{9}$" title="El telefono debe tener exactamente 9 digitos" required>
+                        <div class="d-grid gap-2">
+                            <button id="proveedorSubmitButton" class="btn btn-dark w-100" type="submit"><span class="btn-icon">✓</span> Guardar proveedor</button>
+                            <button id="cancelProveedorEdit" class="btn btn-outline-dark w-100 d-none" type="button"><span class="btn-icon">×</span> Cancelar edicion</button>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="panel-card employees-table-card">
+                    <div class="panel-header">
+                        <h2>Proveedores registrados</h2>
+                        <span id="proveedorResultCount">0 registros</span>
+                    </div>
+                    <div class="table-search table-tools mb-3">
+                        <input id="proveedorSearch" type="search" class="form-control" placeholder="Buscar proveedor, RUC o telefono..." autocomplete="off">
+                        <select id="proveedorPageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table app-table align-middle">
+                            <thead><tr><th>#</th><th><button class="table-sort-button" type="button" data-sort-proveedor="nombre">Proveedor</button></th><th><button class="table-sort-button" type="button" data-sort-proveedor="ruc">RUC</button></th><th><button class="table-sort-button" type="button" data-sort-proveedor="telefono">Telefono</button></th><th class="text-center">Acciones</th></tr></thead>
+                            <tbody id="proveedoresTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="proveedorPagination" class="table-pagination"></div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

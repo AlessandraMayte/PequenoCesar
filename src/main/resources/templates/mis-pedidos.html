@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Mis Pedidos</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page reports-view" data-page="mis-pedidos" data-roles-allowed="CAJERO">
+    <aside th:replace="~{fragments/sidebar :: sidebar('mis-pedidos')}"></aside>
+
+    <main class="dashboard-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section reports-page-grid">
+            <div class="section-heading compact">
+                <div><h1>Mis pedidos</h1></div>
+            </div>
+
+            <form id="misPedidosFilterForm" class="panel-card report-filter-card report-orders-filter-card">
+                <div>
+                    <label class="form-label" for="misPedidosInicio">Desde</label>
+                    <input id="misPedidosInicio" name="inicio" type="date" class="form-control">
+                </div>
+                <div>
+                    <label class="form-label" for="misPedidosFin">Hasta</label>
+                    <input id="misPedidosFin" name="fin" type="date" class="form-control">
+                </div>
+                <button class="btn btn-dark" type="submit">Filtrar pedidos</button>
+            </form>
+
+            <div class="summary-row mt-4">
+                <article><span>Total generado</span><strong id="misPedidosTotal">S/ 0.00</strong></article>
+                <article><span>Pedidos</span><strong id="misPedidosCantidad">0</strong></article>
+                <article><span>Abiertos</span><strong id="misPedidosAbiertos">0</strong></article>
+                <article><span>Entregados</span><strong id="misPedidosEntregados">0</strong></article>
+            </div>
+
+            <div class="panel-card report-table-card mt-4">
+                <div class="panel-header">
+                    <h2>Pedidos registrados por mi</h2>
+                    <span id="misPedidosCount">0 pedidos</span>
+                </div>
+                <div class="table-search table-tools mb-3">
+                    <input id="misPedidosSearch" type="search" class="form-control" placeholder="Buscar cliente, estado o detalle..." autocomplete="off">
+                    <select id="misPedidosPageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="25">25</option>
+                    </select>
+                    <button id="misPedidosPdf" class="btn btn-dark" type="button">Descargar PDF</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table app-table align-middle">
+                        <thead><tr><th><button class="table-sort-button" type="button" data-sort-mis-pedido="fechaHora">Fecha</button></th><th><button class="table-sort-button" type="button" data-sort-mis-pedido="nombreCliente">Cliente</button></th><th><button class="table-sort-button" type="button" data-sort-mis-pedido="estado">Estado</button></th><th><button class="table-sort-button" type="button" data-sort-mis-pedido="detalleProductos">Detalle</button></th><th><button class="table-sort-button" type="button" data-sort-mis-pedido="total">Total</button></th><th class="text-center">Accion</th></tr></thead>
+                        <tbody id="misPedidosTable"></tbody>
+                    </table>
+                </div>
+                <div id="misPedidosPagination" class="table-pagination"></div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal fade" id="misPedidoDetalleModal" tabindex="-1" aria-labelledby="misPedidoDetalleTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="misPedidoDetalleTitle" class="modal-title fs-5">Detalle del pedido</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div id="misPedidoDetalleBody" class="modal-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

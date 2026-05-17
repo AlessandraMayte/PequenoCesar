@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page" data-page="dashboard">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <main class="dashboard-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section hero-dashboard">
+            <div class="section-heading">
+                <div>
+                    <h1>Dashboard</h1>
+                </div>
+                <button id="refreshButton" class="btn btn-brand">Actualizar datos</button>
+            </div>
+
+            <div class="kpi-grid">
+                <article class="kpi-card"><span id="kpiStockBajoLabel">Stock bajo</span><strong id="kpiStockBajo">0</strong><small id="kpiStockBajoHelp">insumos en alerta</small></article>
+                <article class="kpi-card"><span id="kpiAlertasLabel">Alertas</span><strong id="kpiAlertas">0</strong><small id="kpiAlertasHelp">activas</small></article>
+                <article class="kpi-card"><span id="kpiPedidosMesLabel">Pedidos del mes</span><strong id="kpiPedidosMes">0</strong><small id="kpiPedidosMesHelp">pedidos</small></article>
+                <article class="kpi-card"><span id="kpiTotalPedidosLabel">Total pedidos</span><strong id="kpiTotalPedidos">0</strong><small id="kpiTotalPedidosHelp">registrados</small></article>
+            </div>
+
+            <div class="dashboard-grid mt-4">
+                <article class="panel-card dashboard-role-card">
+                    <div class="panel-header"><h2 id="dashboardPrimaryTitle">Actividad</h2><span id="dashboardPrimaryCaption">Resumen del rol</span></div>
+                    <div id="dashboardPrimaryList" class="dashboard-list" aria-live="polite"></div>
+                </article>
+                <article class="panel-card suggestion-card">
+                    <div class="panel-header"><h2 id="dashboardSecondaryTitle">Accesos rapidos</h2><span id="dashboardSecondaryCaption">Segun tu rol</span></div>
+                    <div id="dashboardSecondaryList" class="dashboard-list dashboard-link-list">
+                        <p class="dashboard-empty">Cargando opciones...</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

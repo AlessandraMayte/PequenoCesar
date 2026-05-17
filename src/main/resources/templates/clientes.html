@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Little Caesars | Clientes</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="dashboard-page employees-view" data-page="clientes" data-roles-allowed="GERENTE,CAJERO">
+    <aside th:replace="~{fragments/sidebar :: sidebar('clientes')}"></aside>
+
+    <main class="dashboard-main employees-main">
+        <div id="appAlert" class="alert d-none" role="alert"></div>
+
+        <section class="dashboard-section employees-layout">
+            <div class="section-heading compact">
+                <div>
+                    <h1>Gestion de Clientes</h1>
+                </div>
+                <button id="clienteSubmitTop" class="btn btn-brand" type="submit" form="clienteForm"><span class="btn-icon">+</span> Registrar cliente</button>
+            </div>
+
+            <div class="employees-grid">
+                <article class="panel-card employee-form-card">
+                    <div class="panel-header">
+                        <h2 id="clienteFormTitle">Nuevo cliente</h2>
+                        <span>Datos del cliente</span>
+                    </div>
+                    <form id="clienteForm" class="vstack gap-3">
+                        <input type="hidden" name="idCliente">
+                        <input name="nombre" class="form-control" placeholder="Nombre" maxlength="80" required>
+                        <input name="apellido" class="form-control" placeholder="Apellido" maxlength="80" required>
+                        <div class="input-group">
+                            <input name="dni" class="form-control" placeholder="DNI" inputmode="numeric" minlength="8" maxlength="8" pattern="^\d{8}$" title="El DNI debe tener exactamente 8 digitos" required>
+                            <button class="btn btn-outline-dark" type="button" data-reniec-lookup>Buscar DNI</button>
+                        </div>
+                        <input name="direccion" class="form-control" placeholder="Direccion" maxlength="180">
+                        <input name="celular" class="form-control" placeholder="Celular" inputmode="numeric" minlength="9" maxlength="9" pattern="^\d{9}$" title="El celular debe tener exactamente 9 digitos">
+                        <div class="d-grid gap-2">
+                            <button id="clienteSubmitButton" class="btn btn-dark w-100" type="submit"><span class="btn-icon">✓</span> Guardar cliente</button>
+                            <button id="cancelClienteEdit" class="btn btn-outline-dark w-100 d-none" type="button"><span class="btn-icon">×</span> Cancelar edicion</button>
+                        </div>
+                    </form>
+                </article>
+
+                <article class="panel-card employees-table-card">
+                    <div class="panel-header">
+                        <h2>Clientes registrados</h2>
+                        <span id="clienteResultCount">0 registros</span>
+                    </div>
+                    <div class="table-search table-tools mb-3">
+                        <input id="clienteSearch" type="search" class="form-control" placeholder="Buscar cliente, DNI, direccion o celular..." autocomplete="off">
+                        <select id="clientePageSize" class="form-select table-page-size" aria-label="Registros por pagina">
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table app-table align-middle">
+                            <thead><tr><th>#</th><th><button class="table-sort-button" type="button" data-sort-cliente="nombre">Cliente</button></th><th><button class="table-sort-button" type="button" data-sort-cliente="dni">DNI</button></th><th><button class="table-sort-button" type="button" data-sort-cliente="direccion">Direccion</button></th><th><button class="table-sort-button" type="button" data-sort-cliente="celular">Celular</button></th><th class="text-center">Acciones</th></tr></thead>
+                            <tbody id="clientesTable"></tbody>
+                        </table>
+                    </div>
+                    <div id="clientePagination" class="table-pagination"></div>
+                </article>
+             </div>
+         </section>
+    </main>
+
+    <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
