@@ -1,0 +1,369 @@
+version: '1.0'
+
+services:
+  # ============ PostgreSQL 16 con WAL Archiving ============
+  postgres:
+    image: postgres:16-alpine
+    container_name: cesar_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: cesar_db
+      POSTGRES_INITDB_ARGS: "-c shared_preload_libraries=pg_stat_statements"
+    command:
+      - "postgres"
+      # ========== REPLICACIÓN Y WAL ARCHIVING ==========
+      - "-c"
+      - "wal_level=replica"
+      - "-c"
+      - "max_wal_senders=5"
+      - "-c"
+      - "wal_keep_size=1GB"
+      - "-c"
+      - "archive_mode=on"
+      - "-c"
+      - "archive_command=test ! -f /var/lib/postgresql/wal_archive/%f && cp %p /var/lib/postgresql/wal_archive/%f"
+      # ========== PERFORMANCE Y CONEXIONES ==========
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=4MB"
+      - "-c"
+      - "min_wal_size=2GB"
+      - "-c"
+      - "max_wal_size=8GB"
+      # ========== LOGGING ==========
+      - "-c"
+      - "log_min_duration_statement=1000"
+      - "-c"
+      - "log_connections=on"
+      - "-c"
+      - "log_disconnections=on"
+      - "-c"
+      - "log_statement=all"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init-complete.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - postgres_logs:/var/log/postgresql
+      - ./wal_archive:/var/lib/postgresql/wal_archive
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d cesar_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    networks:
+      - cesar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # ============ Spring Boot Application (Thymeleaf) ============
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pequeno_cesar
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:postgresql://postgres:5432/cesar_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      JWT_EXPIRATION_MS: ${JWT_EXPIRATION_MS:-900000}
+      DEFAULT_ADMIN_ENABLED: ${DEFAULT_ADMIN_ENABLED:-false}
+      DEFAULT_ADMIN_USER: ${DEFAULT_ADMIN_USER:-admin}
+      DEFAULT_ADMIN_PASSWORD: ${DEFAULT_ADMIN_PASSWORD:-}
+      DECOLECTA_BASE_URL: ${DECOLECTA_BASE_URL:-https://api.decolecta.com}
+      DECOLECTA_API_TOKEN: ${DECOLECTA_API_TOKEN:?DECOLECTA_API_TOKEN is required}
+      # Performance
+      JAVA_OPTS: "-Xmx1024m -Xms512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+      SERVER_TOMCAT_THREADS_MAX: 200
+      SERVER_TOMCAT_THREADS_MIN_SPARE: 10
+      SERVER_TOMCAT_MAX_CONNECTIONS: 10000
+    ports:
+      - "${APP_HOST_PORT:-8080}:8080"
+    networks:
+      - cesar-network
+    volumes:
+      - ./app/logs:/app/logs
+      - /tmp:/tmp
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "10"
+
+  # ============ Backup LÓGICO Diario (pg_dump) ============
+  backup-logical:
+    image: postgres:16-alpine
+    container_name: cesar_backup_logical
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      BACKUP_DIR: /backups/logical
+      BACKUP_RETENTION_DAYS: 30
+    volumes:
+      - ./backups/logical:/backups/logical
+      - ./backups/logs:/backups/logs
+    command: >
+      sh -c '
+      while true; do
+        HOUR=$$(date +%H)
+        
+        # Backup diario a las 02:00
+        if [ "$$HOUR" -eq 02 ]; then
+          echo "[$(date)] Iniciando backup lógico (pg_dump)..." >> /backups/logs/logical.log
+          
+          mkdir -p /backups/logical
+          
+          pg_dump -h postgres -U postgres -d cesar_db \
+            -Fc -b -v \
+            -f /backups/logical/cesar_db_$$(date +%Y%m%d_%H%M%S).dump \
+            2>> /backups/logs/logical.log
+          
+          if [ $$? -eq 0 ]; then
+            echo "[$(date)] Backup lógico completado exitosamente" >> /backups/logs/logical.log
+            
+            # Comprime respaldos antiguos
+            find /backups/logical -type f -name "*.dump" -mtime +7 -exec gzip {} \;
+            
+            # Borra respaldos > 30 días
+            find /backups/logical -type f -name "*.dump.gz" -mtime +${BACKUP_RETENTION_DAYS} -delete
+            find /backups/logical -type f -name "*.dump" -mtime +${BACKUP_RETENTION_DAYS} -delete
+          else
+            echo "[$(date)] ERROR: Backup lógico falló" >> /backups/logs/logical.log
+          fi
+        fi
+        
+        sleep 3600
+      done'
+    networks:
+      - cesar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============ Backup FÍSICO Semanal (pg_basebackup) ============
+  backup-physical:
+    image: postgres:16-alpine
+    container_name: cesar_backup_physical
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      BACKUP_DIR: /backups/physical
+      BACKUP_RETENTION_DAYS: 90
+    volumes:
+      - ./backups/physical:/backups/physical
+      - ./backups/logs:/backups/logs
+    command: >
+      sh -c '
+      while true; do
+        DAY=$$(date +%w)
+        HOUR=$$(date +%H)
+        
+        # Backup físico domingo a las 03:00
+        if [ "$$DAY" -eq 0 ] && [ "$$HOUR" -eq 03 ]; then
+          echo "[$(date)] Iniciando backup físico (pg_basebackup)..." >> /backups/logs/physical.log
+          
+          mkdir -p /backups/physical
+          BACKUP_NAME="backup_$$(date +%Y%m%d_%H%M%S)"
+          
+          pg_basebackup -h postgres -U postgres \
+            -D /backups/physical/$$BACKUP_NAME \
+            -Ft -z -P -v \
+            2>> /backups/logs/physical.log
+          
+          if [ $$? -eq 0 ]; then
+            echo "[$(date)] Backup físico completado: $$BACKUP_NAME" >> /backups/logs/physical.log
+            find /backups/physical -type d -mtime +${BACKUP_RETENTION_DAYS} -exec rm -rf {} + 2>/dev/null
+          else
+            echo "[$(date)] ERROR: Backup físico falló" >> /backups/logs/physical.log
+          fi
+        fi
+        
+        sleep 3600
+      done'
+    networks:
+      - cesar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============ Sync a S3 (Off-site) ============
+  backup-s3-sync:
+    image: amazon/aws-cli:latest
+    container_name: cesar_backup_s3
+    restart: always
+    depends_on:
+      backup-logical:
+        condition: service_started
+      backup-physical:
+        condition: service_started
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_DEFAULT_REGION: ${AWS_REGION:-us-east-1}
+      S3_BUCKET: ${S3_BUCKET}
+    volumes:
+      - ./backups:/backups:ro
+      - ./backups/logs:/backups/logs
+    command: >
+      sh -c '
+      if [ -z "$$AWS_ACCESS_KEY_ID" ] || [ -z "$$S3_BUCKET" ]; then
+        echo "[$(date)] S3 sync deshabilitado (falta configuración AWS)" >> /backups/logs/s3.log
+        while true; do sleep 86400; done
+      fi
+      
+      while true; do
+        HOUR=$$(date +%H)
+        
+        # Sync diario a S3 a las 04:00
+        if [ "$$HOUR" -eq 04 ]; then
+          echo "[$(date)] Iniciando sync a S3..." >> /backups/logs/s3.log
+          
+          # Sync respaldos lógicos
+          aws s3 sync /backups/logical s3://$$S3_BUCKET/logical/ \
+            --sse AES256 \
+            --storage-class STANDARD_IA \
+            --delete \
+            2>> /backups/logs/s3.log
+          
+          # Sync respaldos físicos
+          aws s3 sync /backups/physical s3://$$S3_BUCKET/physical/ \
+            --sse AES256 \
+            --storage-class GLACIER \
+            --delete \
+            2>> /backups/logs/s3.log
+          
+          echo "[$(date)] Sync a S3 completado" >> /backups/logs/s3.log
+        fi
+        
+        sleep 3600
+      done'
+    networks:
+      - cesar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============ Monitoreo: Prometheus ============
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: cesar_prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+    ports:
+      - "9090:9090"
+    networks:
+      - cesar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============ Exportador PostgreSQL para Prometheus ============
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: cesar_postgres_exporter
+    restart: always
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/cesar_db?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      - postgres
+    networks:
+      - cesar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============ Grafana (visualización de métricas) ============
+  grafana:
+    image: grafana/grafana:latest
+    container_name: cesar_grafana
+    restart: always
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:?GRAFANA_PASSWORD is required}
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana-datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - cesar-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  postgres_data:
+  postgres_logs:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  cesar-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
